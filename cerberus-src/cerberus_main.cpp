@@ -9,7 +9,8 @@ int main(int argc, char** argv)
 {
 	printf("hello cerberus2\n");
 
-	cerberus_start();
+	Cerberus c;
+	c.start();
 
 	return 0;
 }
