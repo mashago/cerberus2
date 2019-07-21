@@ -22,13 +22,32 @@ int Cerberus::create_share_thread_service()
 CerberusService* Cerberus::get_active_service()
 {
 	CerberusService* service = nullptr;
-	std::unique_lock<std::mutex> lock(mtx);
+	std::unique_lock<std::mutex> lock(active_service_mtx);
 	if (!active_service_list.empty())
 	{
 		service = active_service_list.front();
 		active_service_list.pop_front();
 	}
 	return service;
+}
+
+void Cerberus::push_event(CerberusService* service, CerberusEvent* event)
+{
+	std::unique_lock<std::mutex> lock(service->mtx);
+	service->event_list.push_back(event);
+	active_service_cv.notify_all();
+}
+
+CerberusEvent* Cerberus::pop_event(CerberusService* service)
+{
+	CerberusEvent* event = nullptr;
+	std::unique_lock<std::mutex> lock(service->mtx);
+	if (!service->event_list.empty())
+	{
+		event = service->event_list.front();
+		service->event_list.pop_front();
+	}
+	return event;
 }
 
 bool Cerberus::handle_event()
@@ -41,16 +60,15 @@ bool Cerberus::handle_event()
 	return true;
 }
 
-static std::mutex wait_mtx;
-static std::condition_variable cv;
+static std::mutex thread_mtx;
 void share_thread_run(Cerberus* cerberus)
 {
 	while (true)
 	{
 		if (!cerberus->handle_event())
 		{
-			std::unique_lock<std::mutex> lock(wait_mtx);
-			cv.wait(lock, [cerberus](){ return !cerberus->active_service_list.empty(); });
+			std::unique_lock<std::mutex> lock(thread_mtx);
+			cerberus->active_service_cv.wait(lock, [cerberus](){ return !cerberus->active_service_list.empty(); });
 		}
 	}
 }
