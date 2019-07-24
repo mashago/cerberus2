@@ -24,6 +24,7 @@ int Cerberus::create_share_thread_service()
 	// TODO create service, push into service list, push start event
 	CerberusService* service = new CerberusService();
 	service->id = gen_service_id();
+	service->is_active = false;
 	service_map.insert(std::make_pair(service->id, service));
 	CerberusEvent* start_event = new CerberusEvent();
 	start_event->type = 1;
