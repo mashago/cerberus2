@@ -3,9 +3,27 @@ extern "C"
 {
 #include <stdio.h>
 #include <unistd.h>
+#include <stdint.h>
 }
 #include <thread>
 #include "cerberus_core.h"
+
+void CerberusService::handle_event(CerberusEvent* event)
+{
+	printf("handle_event service_id=%d event_type=%d event_id=%d\n", id, event->type, event->id);
+
+	// XXX fake handle event and test create new event
+	int n = 0;
+	for (int64_t i = 0; i < 100000; i++)
+	{
+		n += i;
+	}
+	CerberusEvent* new_event = new CerberusEvent();
+	new_event->type = 2;
+	new_event->id = event->id + 1;
+
+	c->push_event(this, new_event);
+}
 
 int Cerberus::create_monopoly_thread_service()
 {
@@ -25,9 +43,12 @@ int Cerberus::create_share_thread_service()
 	CerberusService* service = new CerberusService();
 	service->id = gen_service_id();
 	service->is_active = false;
+	service->c = this;
 	service_map.insert(std::make_pair(service->id, service));
+
 	CerberusEvent* start_event = new CerberusEvent();
 	start_event->type = 1;
+	start_event->id = 1;
 	push_event(service, start_event);
 
 	return 0;
@@ -85,7 +106,9 @@ bool Cerberus::handle_event()
 		return false;
 	}
 
-	// TODO handle event
+	// handle event
+	service->handle_event(event);
+	delete event;
 
 	after_handle_event(service);
 	return true;
@@ -101,7 +124,6 @@ void Cerberus::after_handle_event(CerberusService* service)
 	}
 	else
 	{
-		service->is_active = true;
 		active_service_list.push_back(service);
 	}
 }
@@ -123,13 +145,19 @@ void Cerberus::start()
 {
 	// TODO init share work threads
 
-	int thread_count = 3;
+	int thread_count = 4;
 
 	std::thread tl[thread_count];
 	for (int i = 0; i < thread_count; ++i)
 	{
 		printf("i=%d\n", i);
 		tl[i] = std::thread(share_thread_run, this);
+	}
+
+	int service_count = 4;
+	for (int i = 0; i < service_count; ++i)
+	{
+		create_share_thread_service();
 	}
 	
 	for (int i = 0; i < thread_count; ++i)

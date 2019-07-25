@@ -6,11 +6,12 @@
 #include <mutex>
 #include <condition_variable>
 
-void cerberus_start();
+class Cerberus;
 
 struct CerberusEvent
 {
 	int type;
+	int id;
 };
 
 struct CerberusService
@@ -19,6 +20,8 @@ struct CerberusService
 	bool is_active;
 	std::mutex mtx;
 	std::list<CerberusEvent*> event_list;
+	void handle_event(CerberusEvent* event);
+	Cerberus* c;
 };
 
 class Cerberus
