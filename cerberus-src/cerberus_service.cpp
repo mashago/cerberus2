@@ -6,11 +6,17 @@ extern "C"
 #include <stdint.h>
 }
 
-#include "cerberus_service.h"
+#include "cerberus_util.h"
+#include "cerberus_event.h"
 #include "cerberus_core.h"
+#include "cerberus_service.h"
 
 CerberusService::CerberusService(Cerberus* c) :
-c(c), is_active(false)
+c(c), is_active(false), is_release(false)
+{
+}
+
+CerberusService::~CerberusService()
 {
 }
 
@@ -18,6 +24,17 @@ void CerberusService::handle_event(CerberusEvent* event)
 {
 	// default do nothing
 	printf("service do nothing\n");
+}
+
+void CerberusService::release()
+{
+    c->release_service(this);
+
+	// TODO notify event_list call fail to src service
+
+	clear_container(event_list);
+
+    is_release = true;
 }
 
 TestService::TestService(Cerberus* c) :
@@ -35,6 +52,7 @@ void TestService::handle_event(CerberusEvent* event)
 		TestSubService* s = new TestSubService(c);
 		c->dispatch_share_thread_service(s);
 	}
+    release();
 }
 
 TestSubService::TestSubService(Cerberus* c) :
@@ -53,7 +71,7 @@ void TestSubService::handle_event(CerberusEvent* event)
 		n += i;
 	}
 	CerberusEvent* new_event = new CerberusEvent();
-	new_event->type = 2;
+	new_event->type = CerberusEventType::EVENT_CUSTOM;
 	new_event->id = event->id + 1;
 
 	c->push_event(id, new_event);

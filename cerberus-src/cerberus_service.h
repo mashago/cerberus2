@@ -4,12 +4,7 @@
 #include <mutex>
 
 class Cerberus;
-
-struct CerberusEvent
-{
-	int type;
-	int id;
-};
+class CerberusEvent;
 
 class CerberusService
 {
@@ -17,10 +12,14 @@ public:
 	int id;
 	Cerberus* c;
 	bool is_active;
-	CerberusService(Cerberus* c);
+    bool is_release;
 	std::mutex mtx;
 	std::list<CerberusEvent*> event_list;
+
+	CerberusService(Cerberus* c);
+    virtual ~CerberusService();
 	virtual void handle_event(CerberusEvent* event);
+    void release();
 };
 
 class TestService : public CerberusService

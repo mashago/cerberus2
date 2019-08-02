@@ -6,21 +6,15 @@ extern "C"
 #include <stdint.h>
 }
 #include <thread>
+#include <condition_variable>
+
+#include "cerberus_util.h"
+#include "cerberus_event.h"
 #include "cerberus_core.h"
 #include "cerberus_service.h"
 
-// clear pointer container
-template <typename TP, template <typename E, typename Alloc = std::allocator<E>> class TC>
-void clear_container(TC<TP> &c)
-{
-    while (!c.empty())
-    {
-        auto iter = c.begin();
-        delete *iter;
-        *iter = nullptr;
-        c.erase(iter);
-    }
-}
+static std::mutex thread_mtx;
+static std::condition_variable active_service_cv;
 
 int Cerberus::create_monopoly_thread_service()
 {
@@ -34,11 +28,11 @@ int Cerberus::dispatch_share_thread_service(CerberusService* service)
 {
 	static int id = 0;
 	std::unique_lock<std::mutex> lock_big(service_mtx);
-	service->id = id++;
+	service->id = ++id;
 	service_map.insert(std::make_pair(service->id, service));
 
 	CerberusEvent* start_event = new CerberusEvent();
-	start_event->type = 1;
+	start_event->type = CerberusEventType::EVENT_STARTUP;
 	start_event->id = 1;
 
 	// raw push event
@@ -51,23 +45,15 @@ int Cerberus::dispatch_share_thread_service(CerberusService* service)
 	return 0;
 }
 
-void Cerberus::release_service(int service_id)
+void Cerberus::release_service(CerberusService* service)
 {
 	std::unique_lock<std::mutex> lock_big(service_mtx);
-	auto it = service_map.find(service_id);
-	if (it == service_map.end())
-	{
-		return;
-	}
-
-	CerberusService* service = it->second;
-	std::unique_lock<std::mutex> lock_small(service->mtx);
-
-	// TODO notify call event src
-
-	clear_container(service->event_list);
 	service_map.erase(service->id);
-	
+}
+
+bool Cerberus::empty_active_list()
+{
+    return active_service_list.empty();
 }
 
 CerberusService* Cerberus::get_active_service()
@@ -134,6 +120,11 @@ bool Cerberus::handle_event()
 	// handle event
 	service->handle_event(event);
 	delete event;
+    if (service->is_release)
+    {
+        delete service;
+        return true;
+    }
 
 	check_active(service);
 	return true;
@@ -153,15 +144,15 @@ void Cerberus::check_active(CerberusService* service)
 	}
 }
 
-static std::mutex thread_mtx;
-void share_thread_run(Cerberus* cerberus)
+void share_thread_run(Cerberus* cerberus, int i)
 {
 	while (true)
 	{
 		if (!cerberus->handle_event())
 		{
+		    printf("thread sleep i=%d\n", i);
 			std::unique_lock<std::mutex> lock(thread_mtx);
-			cerberus->active_service_cv.wait(lock, [cerberus](){ return !cerberus->active_service_list.empty(); });
+			active_service_cv.wait(lock, [cerberus](){ return !cerberus->empty_active_list(); });
 		}
 	}
 }
@@ -178,7 +169,7 @@ void Cerberus::start()
 	for (int i = 0; i < thread_count; ++i)
 	{
 		printf("i=%d\n", i);
-		tl[i] = std::thread(share_thread_run, this);
+		tl[i] = std::thread(share_thread_run, this, i);
 	}
 	
 	for (int i = 0; i < thread_count; ++i)
