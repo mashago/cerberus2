@@ -10,7 +10,7 @@ class CerberusService;
 class Cerberus
 {
 public:
-	int create_monopoly_thread_service();
+	int dispatch_monopoly_thread_service(CerberusService* service);
 	int dispatch_share_thread_service(CerberusService* service);
 	void release_service(CerberusService* service);
     bool empty_active_list();

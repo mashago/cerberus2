@@ -16,9 +16,14 @@ extern "C"
 static std::mutex thread_mtx;
 static std::condition_variable active_service_cv;
 
-int Cerberus::create_monopoly_thread_service()
+void monoploy_thread_run(Cerberus* cerberus)
 {
-	// TODO create thread, create service, push into service list, push start event
+}
+
+int Cerberus::dispatch_monopoly_thread_service(CerberusService* service)
+{
+	// TODO create thread, push service into service list, push start event
+	std::thread(monoploy_thread_run, this);
 	return 0;
 }
 
