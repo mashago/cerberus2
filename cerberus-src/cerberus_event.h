@@ -5,8 +5,9 @@ enum CerberusEventType {
     EVENT_CUSTOM = 99,
 };
 
-struct CerberusEvent
+class CerberusEvent
 {
+public:
 	int type;
 	int id;
 };
