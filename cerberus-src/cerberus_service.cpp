@@ -20,6 +20,30 @@ CerberusService::~CerberusService()
 {
 }
 
+CerberusEvent* CerberusService::pop_event()
+{
+	CerberusEvent* event = nullptr;
+	std::unique_lock<std::mutex> lock(mtx);
+	if (!event_list.empty())
+	{
+		event = event_list.front();
+		event_list.pop_front();
+	}
+	return event;
+}
+
+bool CerberusService::push_event(CerberusEvent* event)
+{
+	std::unique_lock<std::mutex> lock_small(mtx);
+	event_list.push_back(event);
+	if (!is_active)
+	{
+		is_active = true;
+		return false;
+	}
+	return true;
+}
+
 void CerberusService::handle_event(CerberusEvent* event)
 {
 	// default do nothing

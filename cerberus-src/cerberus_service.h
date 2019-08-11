@@ -5,6 +5,7 @@
 
 class Cerberus;
 class CerberusEvent;
+class CerberusThread;
 
 class CerberusService
 {
@@ -15,9 +16,13 @@ public:
     bool is_release;
 	std::mutex mtx;
 	std::list<CerberusEvent*> event_list;
+	CerberusThread* thread_mgr;
 
 	CerberusService(Cerberus* c);
     virtual ~CerberusService();
+	
+	CerberusEvent* pop_event();
+	bool push_event(CerberusEvent* event);
 	virtual void handle_event(CerberusEvent* event);
     void release();
 };
