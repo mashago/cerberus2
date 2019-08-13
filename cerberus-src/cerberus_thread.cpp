@@ -121,3 +121,37 @@ void CerberusShareThread::add_service(CerberusService* service)
 	active_service_list.push_back(service);
 	active_service_cv.notify_all();
 }
+
+
+CerberusMonopolyThread::CerberusMonopolyThread(CerberusService* service, bool non_block) : service(service), non_block(non_block)
+{
+}
+
+void monoploy_thread_run(CerberusMonopolyThread* thread_mgr)
+{
+	while (true)
+	{
+		if (!thread_mgr->handle_event())
+		{
+			std::unique_lock<std::mutex> lock(thread_mgr->thread_mtx);
+			thread_mgr->active_service_cv.wait(lock, [thread_mgr](){ return !thread_mgr->service->is_active; });
+		}
+	}
+}
+
+void CerberusMonopolyThread::dispatch()
+{
+	std::thread(monoploy_thread_run, this);
+}
+
+bool CerberusMonopolyThread::handle_event()
+{
+	// TODO
+	return false;
+}
+
+bool CerberusMonopolyThread::push_event(CerberusService* service, CerberusEvent* event)
+{
+	// TODO
+	return false;
+}

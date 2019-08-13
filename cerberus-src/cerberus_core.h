@@ -14,7 +14,7 @@ class Cerberus
 public:
 	Cerberus();
 	~Cerberus();
-	int dispatch_monopoly_thread_service(CerberusService* service);
+	int dispatch_monopoly_thread_service(CerberusService* service, bool non_block);
 	int dispatch_share_thread_service(CerberusService* service);
 	void release_service(CerberusService* service);
 	bool push_event(int service_id, CerberusEvent* event);
