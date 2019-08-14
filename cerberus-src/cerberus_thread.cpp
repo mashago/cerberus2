@@ -147,11 +147,18 @@ void CerberusMonopolyThread::dispatch()
 bool CerberusMonopolyThread::handle_event()
 {
 	// TODO
+	CerberusEvent* event = service->pop_event();
+	if (!event)
+	{
+		return false;
+	}
 	return false;
 }
 
 bool CerberusMonopolyThread::push_event(CerberusService* service, CerberusEvent* event)
 {
-	// TODO
-	return false;
+	std::unique_lock<std::mutex> lock_big(thread_mtx);
+	service->push_event(event);
+	active_service_cv.notify_one();
+	return true;
 }

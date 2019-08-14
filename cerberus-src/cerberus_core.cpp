@@ -22,10 +22,6 @@ Cerberus::~Cerberus()
 	delete share_thread_mgr;
 }
 
-void monoploy_thread_run(Cerberus* cerberus)
-{
-}
-
 static int id = 0;
 
 int Cerberus::dispatch_monopoly_thread_service(CerberusService* service, bool non_block)
