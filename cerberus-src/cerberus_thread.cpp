@@ -99,6 +99,7 @@ void CerberusShareThread::check_active(CerberusService* service)
 	else
 	{
 		active_service_list.push_back(service);
+		active_service_cv.notify_one();
 	}
 }
 
@@ -110,7 +111,7 @@ bool CerberusShareThread::push_event(CerberusService* service, CerberusEvent* ev
 	{
 		active_service_list.push_back(service);
 	}
-	active_service_cv.notify_all();
+	active_service_cv.notify_one();
 	return true;
 }
 
@@ -127,7 +128,7 @@ CerberusMonopolyThread::CerberusMonopolyThread(CerberusService* service, bool no
 {
 }
 
-void monoploy_thread_run(CerberusMonopolyThread* thread_mgr)
+void monoploy_thread_non_block_run(CerberusMonopolyThread* thread_mgr)
 {
 	while (true)
 	{
@@ -139,9 +140,21 @@ void monoploy_thread_run(CerberusMonopolyThread* thread_mgr)
 	}
 }
 
+void monoploy_thread_block_run(CerberusMonopolyThread* thread_mgr)
+{
+	// TODO only run servier dispatch, just let service get its event
+}
+
 void CerberusMonopolyThread::dispatch()
 {
-	std::thread(monoploy_thread_run, this);
+	if (non_block)
+	{
+		std::thread(monoploy_thread_non_block_run, this);
+	}
+	else
+	{
+		std::thread(monoploy_thread_block_run, this);
+	}
 }
 
 bool CerberusMonopolyThread::handle_event()
