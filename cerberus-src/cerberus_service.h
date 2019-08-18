@@ -24,6 +24,7 @@ public:
 	CerberusEvent* pop_event();
 	bool push_event(CerberusEvent* event);
 	virtual void handle_event(CerberusEvent* event);
+	virtual void dispatch();
     void release();
 };
 

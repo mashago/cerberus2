@@ -47,7 +47,13 @@ bool CerberusService::push_event(CerberusEvent* event)
 void CerberusService::handle_event(CerberusEvent* event)
 {
 	// default do nothing
-	printf("service do nothing\n");
+	printf("service handle_event do nothing\n");
+}
+
+void CerberusService::dispatch()
+{
+	// default do nothing
+	printf("service dispatch do nothing\n");
 }
 
 void CerberusService::release()
