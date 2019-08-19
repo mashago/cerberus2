@@ -3,12 +3,17 @@
 #include "cerberus_event.h"
 #include "cerberus_service.h"
 
-CerberusThread::CerberusThread()
+CerberusThread::CerberusThread() : is_running(true)
 {
 }
 
 CerberusThread::~CerberusThread()
 {
+}
+
+void CerberusThread::get_events(std::list<CerberusEvent*> l)
+{
+	// default do nothing
 }
 
 CerberusShareThread::CerberusShareThread(int thread_num) : thread_num(thread_num)
@@ -91,6 +96,13 @@ bool CerberusShareThread::handle_event()
 void CerberusShareThread::check_active(CerberusService* service)
 {
 	std::unique_lock<std::mutex> lock_big(thread_mtx);
+	if (!service->event_list.empty())
+	{
+		active_service_list.push_back(service);
+		active_service_cv.notify_one();
+		return;
+	}
+
 	std::unique_lock<std::mutex> lock_small(service->mtx);
 	if (service->event_list.empty())
 	{
@@ -130,7 +142,7 @@ CerberusMonopolyThread::CerberusMonopolyThread(CerberusService* service, bool no
 
 void monoploy_thread_block_run(CerberusMonopolyThread* thread_mgr)
 {
-	while (true)
+	while (thread_mgr->is_running)
 	{
 		if (!thread_mgr->handle_event())
 		{
@@ -142,7 +154,7 @@ void monoploy_thread_block_run(CerberusMonopolyThread* thread_mgr)
 
 void monoploy_thread_non_block_run(CerberusMonopolyThread* thread_mgr)
 {
-	// TODO only run servier dispatch, just let service get its event
+	// only run servier dispatch, just let service get its event
 	thread_mgr->service->dispatch();
 }
 
@@ -160,13 +172,20 @@ void CerberusMonopolyThread::dispatch()
 
 bool CerberusMonopolyThread::handle_event()
 {
-	// TODO
 	CerberusEvent* event = service->pop_event();
 	if (!event)
 	{
 		return false;
 	}
-	return false;
+
+	service->handle_event(event);
+    if (service->is_release)
+    {
+        delete service;
+		is_running = false;
+        return true;
+    }
+	return true;
 }
 
 bool CerberusMonopolyThread::push_event(CerberusService* service, CerberusEvent* event)
@@ -175,4 +194,13 @@ bool CerberusMonopolyThread::push_event(CerberusService* service, CerberusEvent*
 	service->push_event(event);
 	active_service_cv.notify_one();
 	return true;
+}
+
+void CerberusMonopolyThread::get_events(std::list<CerberusEvent*> dest)
+{
+	std::unique_lock<std::mutex> lock_small(service->mtx);
+	for (auto iter = service->event_list.begin(); iter != service->event_list.end(); ++iter)
+	{
+		dest.push_back(*iter);
+	}
 }
