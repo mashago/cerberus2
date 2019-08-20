@@ -22,6 +22,7 @@ public:
     virtual ~CerberusService();
 	
 	CerberusEvent* pop_event();
+	void pop_events(std::list<CerberusEvent*>& l);
 	bool push_event(CerberusEvent* event);
 	virtual void handle_event(CerberusEvent* event);
 	virtual void dispatch();
@@ -35,9 +36,24 @@ public:
 	void handle_event(CerberusEvent* event);
 };
 
-class TestSubService : public CerberusService
+class TestShareService : public CerberusService
 {
 public:
-	TestSubService(Cerberus* c);
+	TestShareService(Cerberus* c);
+	void handle_event(CerberusEvent* event);
+};
+
+class TestMolopolyBlockService : public CerberusService
+{
+public:
+	TestMolopolyBlockService(Cerberus* c);
+	void handle_event(CerberusEvent* event);
+};
+
+class TestMolopolyNonBlockService : public CerberusService
+{
+public:
+	TestMolopolyNonBlockService(Cerberus* c);
+	void dispatch();
 	void handle_event(CerberusEvent* event);
 };

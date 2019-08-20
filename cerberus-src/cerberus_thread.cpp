@@ -11,11 +11,6 @@ CerberusThread::~CerberusThread()
 {
 }
 
-void CerberusThread::get_events(std::list<CerberusEvent*> l)
-{
-	// default do nothing
-}
-
 CerberusShareThread::CerberusShareThread(int thread_num) : thread_num(thread_num)
 {
 }
@@ -194,13 +189,4 @@ bool CerberusMonopolyThread::push_event(CerberusService* service, CerberusEvent*
 	service->push_event(event);
 	active_service_cv.notify_one();
 	return true;
-}
-
-void CerberusMonopolyThread::get_events(std::list<CerberusEvent*> dest)
-{
-	std::unique_lock<std::mutex> lock_small(service->mtx);
-	for (auto iter = service->event_list.begin(); iter != service->event_list.end(); ++iter)
-	{
-		dest.push_back(*iter);
-	}
 }

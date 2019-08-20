@@ -33,12 +33,13 @@ int Cerberus::dispatch_monopoly_thread_service(CerberusService* service, bool no
 	CerberusEvent* start_event = new CerberusEvent();
 	start_event->type = CerberusEventType::EVENT_STARTUP;
 	start_event->id = 1;
+	service->event_list.push_back(start_event);
 
 	CerberusMonopolyThread* monoploy_thread_mgr = new CerberusMonopolyThread(service, non_block);
 	monopoly_thread_list.push_back(monoploy_thread_mgr);
 	monoploy_thread_mgr->dispatch();
 
-	return 0;
+	return service->id;
 }
 
 // may run in handle_event or in main
@@ -58,7 +59,7 @@ int Cerberus::dispatch_share_thread_service(CerberusService* service)
 	service->is_active = true;
 	share_thread_mgr->add_service(service);
 
-	return 0;
+	return service->id;
 }
 
 void Cerberus::release_service(CerberusService* service)
