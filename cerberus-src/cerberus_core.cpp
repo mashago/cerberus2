@@ -11,6 +11,7 @@ extern "C"
 #include "cerberus_core.h"
 #include "cerberus_service.h"
 #include "cerberus_thread.h"
+#include "cerberus_test.h"
 
 Cerberus::Cerberus() : share_thread_mgr(nullptr)
 {
@@ -85,8 +86,14 @@ bool Cerberus::push_event(int service_id, CerberusEvent* event)
 void Cerberus::start()
 {
 	// init main
-	CerberusService* s = new TestService(this);
-	dispatch_share_thread_service(s);
+	// CerberusService* s = new TestService(this);
+	// dispatch_share_thread_service(s);
+	
+	// CerberusService* s = new TestMolopolyNonBlockService(this);
+	// dispatch_monopoly_thread_service(s, true);
+
+	CerberusService* s = new TestMolopolyBlockService(this);
+	dispatch_monopoly_thread_service(s, false);
 	
 	share_thread_mgr->dispatch();
 }

@@ -130,9 +130,15 @@ void CerberusShareThread::add_service(CerberusService* service)
 	active_service_cv.notify_all();
 }
 
-
 CerberusMonopolyThread::CerberusMonopolyThread(CerberusService* service, bool non_block) : service(service), non_block(non_block)
 {
+	service->thread_mgr = this;
+}
+
+void monoploy_thread_non_block_run(CerberusMonopolyThread* thread_mgr)
+{
+	// only run servier dispatch, just let service get its event
+	thread_mgr->service->dispatch();
 }
 
 void monoploy_thread_block_run(CerberusMonopolyThread* thread_mgr)
@@ -147,21 +153,15 @@ void monoploy_thread_block_run(CerberusMonopolyThread* thread_mgr)
 	}
 }
 
-void monoploy_thread_non_block_run(CerberusMonopolyThread* thread_mgr)
-{
-	// only run servier dispatch, just let service get its event
-	thread_mgr->service->dispatch();
-}
-
 void CerberusMonopolyThread::dispatch()
 {
 	if (non_block)
 	{
-		std::thread(monoploy_thread_block_run, this);
+		t = std::thread(monoploy_thread_non_block_run, this);
 	}
 	else
 	{
-		std::thread(monoploy_thread_non_block_run, this);
+		t = std::thread(monoploy_thread_block_run, this);
 	}
 }
 

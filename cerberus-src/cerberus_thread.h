@@ -46,4 +46,5 @@ public:
 	bool push_event(CerberusService* service, CerberusEvent* event);
 	CerberusService* service;
 	bool non_block;
+	std::thread t;
 };
