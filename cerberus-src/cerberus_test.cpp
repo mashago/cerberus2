@@ -21,12 +21,18 @@ void TestService::handle_event(CerberusEvent* event)
 {
 	printf("handle_event service_id=%d event_type=%d event_id=%d\n", id, event->type, event->id);
 
-	int service_count = 8;
+	int service_count = 4;
 	for (int i = 0; i < service_count; ++i)
 	{
 		TestShareService* s = new TestShareService(c);
 		c->dispatch_share_thread_service(s);
 	}
+
+	CerberusService* s1 = new TestMolopolyBlockService(c);
+	c->dispatch_monopoly_thread_service(s1);
+
+	CerberusService* s2 = new TestMolopolyNonBlockService(c);
+	c->dispatch_monopoly_thread_service(s2);
     release();
 }
 
@@ -73,6 +79,7 @@ void TestMolopolyBlockService::handle_event(CerberusEvent* event)
 TestMolopolyNonBlockService::TestMolopolyNonBlockService(Cerberus* c) :
 CerberusService(c)
 {
+	is_block = false;
 }
 
 void TestMolopolyNonBlockService::handle_event(CerberusEvent* event)

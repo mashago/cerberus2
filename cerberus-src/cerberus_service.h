@@ -14,6 +14,7 @@ public:
 	Cerberus* c;
 	bool is_active;
     bool is_release;
+	bool is_block; // work with monopoly thread
 	std::mutex mtx;
 	std::list<CerberusEvent*> event_list;
 	CerberusThread* thread_mgr;
@@ -25,6 +26,6 @@ public:
 	void pop_events(std::list<CerberusEvent*>& l);
 	bool push_event(CerberusEvent* event);
 	virtual void handle_event(CerberusEvent* event);
-	virtual void dispatch();
+	virtual void dispatch(); // work with monopoly nonblock thread
     void release();
 };

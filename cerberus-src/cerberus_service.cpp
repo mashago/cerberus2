@@ -12,7 +12,10 @@ extern "C"
 #include "cerberus_service.h"
 
 CerberusService::CerberusService(Cerberus* c) :
-c(c), is_active(false), is_release(false)
+c(c),
+is_active(false),
+is_release(false),
+is_block(true)
 {
 }
 

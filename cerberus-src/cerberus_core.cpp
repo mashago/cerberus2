@@ -15,7 +15,7 @@ extern "C"
 
 Cerberus::Cerberus() : share_thread_mgr(nullptr)
 {
-	share_thread_mgr = new CerberusShareThread(4);
+	share_thread_mgr = new CerberusShareThread(2);
 }
 
 Cerberus::~Cerberus()
@@ -25,7 +25,7 @@ Cerberus::~Cerberus()
 
 static int id = 0;
 
-int Cerberus::dispatch_monopoly_thread_service(CerberusService* service, bool non_block)
+int Cerberus::dispatch_monopoly_thread_service(CerberusService* service)
 {
 	std::unique_lock<std::mutex> lock_big(service_mtx);
 	service->id = ++id;
@@ -36,7 +36,7 @@ int Cerberus::dispatch_monopoly_thread_service(CerberusService* service, bool no
 	start_event->id = 1;
 	service->event_list.push_back(start_event);
 
-	CerberusMonopolyThread* monoploy_thread_mgr = new CerberusMonopolyThread(service, non_block);
+	CerberusMonopolyThread* monoploy_thread_mgr = new CerberusMonopolyThread(service);
 	monopoly_thread_list.push_back(monoploy_thread_mgr);
 	monoploy_thread_mgr->dispatch();
 
@@ -86,14 +86,8 @@ bool Cerberus::push_event(int service_id, CerberusEvent* event)
 void Cerberus::start()
 {
 	// init main
-	// CerberusService* s = new TestService(this);
-	// dispatch_share_thread_service(s);
-	
-	// CerberusService* s = new TestMolopolyNonBlockService(this);
-	// dispatch_monopoly_thread_service(s, true);
-
-	CerberusService* s = new TestMolopolyBlockService(this);
-	dispatch_monopoly_thread_service(s, false);
+	CerberusService* s = new TestService(this);
+	dispatch_share_thread_service(s);
 	
 	share_thread_mgr->dispatch();
 }

@@ -40,11 +40,10 @@ private:
 class CerberusMonopolyThread : public CerberusThread
 {
 public:
-	CerberusMonopolyThread(CerberusService* service, bool non_block);
+	CerberusMonopolyThread(CerberusService* service);
 	void dispatch();
 	bool handle_event();
 	bool push_event(CerberusService* service, CerberusEvent* event);
 	CerberusService* service;
-	bool non_block;
 	std::thread t;
 };
