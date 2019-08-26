@@ -10,5 +10,9 @@ class CerberusEvent
 public:
 	int type;
 	int id;
+
+	int src_id;
+	int dest_id;
+	int session_id;
 };
 

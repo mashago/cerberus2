@@ -33,7 +33,8 @@ int Cerberus::dispatch_monopoly_thread_service(CerberusService* service)
 
 	CerberusEvent* start_event = new CerberusEvent();
 	start_event->type = CerberusEventType::EVENT_STARTUP;
-	start_event->id = 1;
+	start_event->src_id = 0;
+	start_event->dest_id = service->id;
 	service->event_list.push_back(start_event);
 
 	CerberusMonopolyThread* monoploy_thread_mgr = new CerberusMonopolyThread(service);
@@ -53,7 +54,8 @@ int Cerberus::dispatch_share_thread_service(CerberusService* service)
 
 	CerberusEvent* start_event = new CerberusEvent();
 	start_event->type = CerberusEventType::EVENT_STARTUP;
-	start_event->id = 1;
+	start_event->src_id = 0;
+	start_event->dest_id = service->id;
 
 	// raw push event
 	service->event_list.push_back(start_event);
