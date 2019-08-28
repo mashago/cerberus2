@@ -42,6 +42,7 @@ class CerberusMonopolyThread : public CerberusThread
 public:
 	CerberusMonopolyThread(CerberusService* service);
 	void dispatch();
+	void join();
 	bool handle_event();
 	bool push_event(CerberusService* service, CerberusEvent* event);
 	CerberusService* service;

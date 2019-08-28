@@ -17,7 +17,7 @@ public:
 	int dispatch_monopoly_thread_service(CerberusService* service);
 	int dispatch_share_thread_service(CerberusService* service);
 	void release_service(CerberusService* service);
-	bool push_event(int service_id, CerberusEvent* event);
+	bool push_event(CerberusEvent* event);
 	void start();
 private:
 	std::mutex service_mtx;

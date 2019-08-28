@@ -165,6 +165,11 @@ void CerberusMonopolyThread::dispatch()
 	}
 }
 
+void CerberusMonopolyThread::join()
+{
+	t.join();
+}
+
 bool CerberusMonopolyThread::handle_event()
 {
 	CerberusEvent* event = service->pop_event();

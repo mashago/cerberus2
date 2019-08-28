@@ -71,10 +71,10 @@ void Cerberus::release_service(CerberusService* service)
 	service_map.erase(service->id);
 }
 
-bool Cerberus::push_event(int service_id, CerberusEvent* event)
+bool Cerberus::push_event(CerberusEvent* event)
 {
 	std::unique_lock<std::mutex> lock_big(service_mtx);
-	auto it = service_map.find(service_id);
+	auto it = service_map.find(event->dest_id);
 	if (it == service_map.end())
 	{
 		return false;
@@ -92,4 +92,9 @@ void Cerberus::start()
 	dispatch_share_thread_service(s);
 	
 	share_thread_mgr->dispatch();
+
+	for (auto iter = monopoly_thread_list.begin(); iter != monopoly_thread_list.end(); ++iter)
+	{
+		(*iter)->join();
+	}
 }

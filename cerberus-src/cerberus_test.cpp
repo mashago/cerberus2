@@ -44,18 +44,21 @@ void TestService::handle_event(CerberusEvent* event)
     release();
 }
 
-CerberusEvent* create_busy_event(int src_id, int dest_id, int event_type)
+void handle_busy_event()
 {
 	int n = 0;
 	for (int64_t i = 0; i < 100000; i++)
 	{
 		n += i;
 	}
+}
+
+CerberusEvent* create_busy_event(int src_id, int dest_id)
+{
 	CerberusEvent* event = new CerberusEvent();
 	event->src_id = src_id;
 	event->dest_id = dest_id;
-	event->type = event_type;
-
+	event->type = CerberusEventType::EVENT_BUSY;
 	return event;
 }
 
@@ -77,10 +80,14 @@ CerberusService(c)
 void TestShareService::handle_event(CerberusEvent* event)
 {
 	printf("TestShareService handle_event src_id=%d event_type=%d dest_id=%d\n", id, event->type, event->dest_id);
+	if (event->type == CerberusEventType::EVENT_BUSY)
+	{
+		handle_busy_event();
+	}
 
 	int dest_id = random_service(id);
-	CerberusEvent* new_event = create_busy_event(id, dest_id, CerberusEventType::EVENT_CUSTOM);
-	c->push_event(event->dest_id, new_event);
+	CerberusEvent* new_event = create_busy_event(id, dest_id);
+	c->push_event(new_event);
 }
 
 TestMolopolyBlockService::TestMolopolyBlockService(Cerberus* c) :
@@ -91,10 +98,14 @@ CerberusService(c)
 void TestMolopolyBlockService::handle_event(CerberusEvent* event)
 {
 	printf("TestMolopolyBlockService handle_event src_id=%d event_type=%d dest_id=%d\n", event->src_id, event->type, event->dest_id);
+	if (event->type == CerberusEventType::EVENT_BUSY)
+	{
+		handle_busy_event();
+	}
 
 	int dest_id = random_service(id);
-	CerberusEvent* new_event = create_busy_event(id, dest_id, CerberusEventType::EVENT_CUSTOM);
-	c->push_event(event->dest_id, new_event);
+	CerberusEvent* new_event = create_busy_event(id, dest_id);
+	c->push_event(new_event);
 }
 
 TestMolopolyNonBlockService::TestMolopolyNonBlockService(Cerberus* c) :
@@ -106,10 +117,14 @@ CerberusService(c)
 void TestMolopolyNonBlockService::handle_event(CerberusEvent* event)
 {
 	printf("TestMolopolyNonBlockService handle_event src_id=%d event_type=%d dest_id=%d\n", event->src_id, event->type, event->dest_id);
+	if (event->type == CerberusEventType::EVENT_BUSY)
+	{
+		handle_busy_event();
+	}
 
 	int dest_id = random_service(id);
-	CerberusEvent* new_event = create_busy_event(id, dest_id, CerberusEventType::EVENT_CUSTOM);
-	c->push_event(event->dest_id, new_event);
+	CerberusEvent* new_event = create_busy_event(id, dest_id);
+	c->push_event(new_event);
 }
 
 void TestMolopolyNonBlockService::dispatch()
