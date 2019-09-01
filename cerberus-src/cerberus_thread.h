@@ -14,11 +14,12 @@ public:
 	CerberusThread();
 	virtual ~CerberusThread();
 	virtual void dispatch() = 0;
+	virtual bool loop() = 0;
 	virtual bool push_event(CerberusService* service, CerberusEvent* event) = 0;
 
 	bool is_running;
-	std::condition_variable active_service_cv;
 	std::mutex thread_mtx;
+	std::condition_variable active_service_cv;
 };
 
 class CerberusShareThread : public CerberusThread
@@ -26,10 +27,11 @@ class CerberusShareThread : public CerberusThread
 public:
 	CerberusShareThread(int thread_num);
 	void dispatch();
-	void add_service(CerberusService* service);
+	bool loop();
 	bool push_event(CerberusService* service, CerberusEvent* event);
+
+	void add_service(CerberusService* service);
 	void check_active(CerberusService* service);
-	bool handle_event();
 	bool empty_active_list();
 	CerberusService* get_active_service();
 private:
@@ -42,9 +44,11 @@ class CerberusMonopolyThread : public CerberusThread
 public:
 	CerberusMonopolyThread(CerberusService* service);
 	void dispatch();
-	void join();
-	bool handle_event();
+	bool loop();
 	bool push_event(CerberusService* service, CerberusEvent* event);
+
+	void join();
 	CerberusService* service;
-	std::thread t;
+private:
+	std::thread td;
 };

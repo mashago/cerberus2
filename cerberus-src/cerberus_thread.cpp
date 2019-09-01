@@ -11,6 +11,8 @@ CerberusThread::~CerberusThread()
 {
 }
 
+///////////////////////////////////////////////////////
+
 CerberusShareThread::CerberusShareThread(int thread_num) : thread_num(thread_num)
 {
 }
@@ -19,7 +21,7 @@ void share_thread_run(CerberusShareThread* thread_mgr, int i)
 {
 	while (true)
 	{
-		if (!thread_mgr->handle_event())
+		if (!thread_mgr->loop())
 		{
 		    printf("thread sleep i=%d\n", i);
 			std::unique_lock<std::mutex> lock(thread_mgr->thread_mtx);
@@ -43,24 +45,7 @@ void CerberusShareThread::dispatch()
 	}
 }
 
-bool CerberusShareThread::empty_active_list()
-{
-    return active_service_list.empty();
-}
-
-CerberusService* CerberusShareThread::get_active_service()
-{
-	CerberusService* service = nullptr;
-	std::unique_lock<std::mutex> lock(thread_mtx);
-	if (!active_service_list.empty())
-	{
-		service = active_service_list.front();
-		active_service_list.pop_front();
-	}
-	return service;
-}
-
-bool CerberusShareThread::handle_event()
+bool CerberusShareThread::loop()
 {
 	CerberusService* service = get_active_service();
 	if (!service)
@@ -88,6 +73,26 @@ bool CerberusShareThread::handle_event()
 	return true;
 }
 
+bool CerberusShareThread::push_event(CerberusService* service, CerberusEvent* event)
+{
+	std::unique_lock<std::mutex> lock_big(thread_mtx);
+	bool is_already_active = service->push_event(event);
+	if (!is_already_active)
+	{
+		active_service_list.push_back(service);
+	}
+	active_service_cv.notify_one();
+	return true;
+}
+
+void CerberusShareThread::add_service(CerberusService* service)
+{
+	service->thread_mgr = this;
+	std::unique_lock<std::mutex> lock_big(thread_mtx);
+	active_service_list.push_back(service);
+	active_service_cv.notify_all();
+}
+
 void CerberusShareThread::check_active(CerberusService* service)
 {
 	std::unique_lock<std::mutex> lock_big(thread_mtx);
@@ -110,25 +115,24 @@ void CerberusShareThread::check_active(CerberusService* service)
 	}
 }
 
-bool CerberusShareThread::push_event(CerberusService* service, CerberusEvent* event)
+bool CerberusShareThread::empty_active_list()
 {
-	std::unique_lock<std::mutex> lock_big(thread_mtx);
-	bool is_already_active = service->push_event(event);
-	if (!is_already_active)
-	{
-		active_service_list.push_back(service);
-	}
-	active_service_cv.notify_one();
-	return true;
+    return active_service_list.empty();
 }
 
-void CerberusShareThread::add_service(CerberusService* service)
+CerberusService* CerberusShareThread::get_active_service()
 {
-	service->thread_mgr = this;
-	std::unique_lock<std::mutex> lock_big(thread_mtx);
-	active_service_list.push_back(service);
-	active_service_cv.notify_all();
+	CerberusService* service = nullptr;
+	std::unique_lock<std::mutex> lock(thread_mtx);
+	if (!active_service_list.empty())
+	{
+		service = active_service_list.front();
+		active_service_list.pop_front();
+	}
+	return service;
 }
+
+///////////////////////////////////////////////////
 
 CerberusMonopolyThread::CerberusMonopolyThread(CerberusService* service) : service(service)
 {
@@ -139,7 +143,7 @@ void monoploy_thread_block_run(CerberusMonopolyThread* thread_mgr)
 {
 	while (thread_mgr->is_running)
 	{
-		if (!thread_mgr->handle_event())
+		if (!thread_mgr->loop())
 		{
 			std::unique_lock<std::mutex> lock(thread_mgr->thread_mtx);
 			thread_mgr->active_service_cv.wait(lock, [thread_mgr](){ return !thread_mgr->service->event_list.empty(); });
@@ -157,20 +161,15 @@ void CerberusMonopolyThread::dispatch()
 {
 	if (service->is_block)
 	{
-		t = std::thread(monoploy_thread_block_run, this);
+		td = std::thread(monoploy_thread_block_run, this);
 	}
 	else
 	{
-		t = std::thread(monoploy_thread_non_block_run, this);
+		td = std::thread(monoploy_thread_non_block_run, this);
 	}
 }
 
-void CerberusMonopolyThread::join()
-{
-	t.join();
-}
-
-bool CerberusMonopolyThread::handle_event()
+bool CerberusMonopolyThread::loop()
 {
 	CerberusEvent* event = service->pop_event();
 	if (!event)
@@ -194,4 +193,9 @@ bool CerberusMonopolyThread::push_event(CerberusService* service, CerberusEvent*
 	service->push_event(event);
 	active_service_cv.notify_one();
 	return true;
+}
+
+void CerberusMonopolyThread::join()
+{
+	td.join();
 }
