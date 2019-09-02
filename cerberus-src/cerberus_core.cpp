@@ -15,7 +15,7 @@ extern "C"
 
 Cerberus::Cerberus() : share_thread_mgr(nullptr)
 {
-	share_thread_mgr = new CerberusShareThread(2);
+	share_thread_mgr = new CerberusShareThread(3);
 }
 
 Cerberus::~Cerberus()
@@ -87,6 +87,7 @@ bool Cerberus::push_event(CerberusEvent* event)
 
 void Cerberus::start()
 {
+    srand((unsigned)time(NULL));
 	// init main
 	CerberusService* s = new TestService(this);
 	dispatch_share_thread_service(s);

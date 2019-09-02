@@ -26,7 +26,7 @@ void TestService::handle_event(CerberusEvent* event)
 	printf("handle_event src_id=%d event_type=%d dest_id=%d\n", event->src_id, event->type, event->dest_id);
 
 	int service_id = 0;
-	int service_count = 4;
+	int service_count = 8;
 	for (int i = 0; i < service_count; ++i)
 	{
 		TestShareService* s = new TestShareService(c);
@@ -79,7 +79,7 @@ CerberusService(c)
 
 void TestShareService::handle_event(CerberusEvent* event)
 {
-	printf("TestShareService handle_event src_id=%d event_type=%d dest_id=%d\n", id, event->type, event->dest_id);
+	printf("TestShareService handle_event src_id=%d event_type=%d dest_id=%d\n", event->src_id, event->type, event->dest_id);
 	if (event->type == CerberusEventType::EVENT_BUSY)
 	{
 		handle_busy_event();
