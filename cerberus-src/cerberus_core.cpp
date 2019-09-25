@@ -11,11 +11,12 @@ extern "C"
 #include "cerberus_core.h"
 #include "cerberus_service.h"
 #include "cerberus_thread.h"
-#include "cerberus_test.h"
+#include "cerberus_service_loader.h"
 
 Cerberus::Cerberus() : share_thread_mgr(nullptr)
 {
 	share_thread_mgr = new CerberusShareThread(3);
+	loader = new CerberusServiceLoader();
 }
 
 Cerberus::~Cerberus()
@@ -89,7 +90,12 @@ void Cerberus::start()
 {
     srand((unsigned)time(NULL));
 	// init main
-	CerberusService* s = new TestService(this);
+	CerberusService* s = loader->load("service_test");
+    if (!s)
+    {
+        printf("test load error\n");
+        return;
+    }
 	dispatch_share_thread_service(s);
 	
 	share_thread_mgr->dispatch();

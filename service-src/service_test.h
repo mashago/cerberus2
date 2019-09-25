@@ -6,28 +6,28 @@ class CerberusEvent;
 class TestService : public CerberusService
 {
 public:
-	TestService(Cerberus* c);
+	TestService();
 	void handle_event(CerberusEvent* event);
 };
 
 class TestShareService : public CerberusService
 {
 public:
-	TestShareService(Cerberus* c);
+	TestShareService();
 	void handle_event(CerberusEvent* event);
 };
 
 class TestMolopolyBlockService : public CerberusService
 {
 public:
-	TestMolopolyBlockService(Cerberus* c);
+	TestMolopolyBlockService();
 	void handle_event(CerberusEvent* event);
 };
 
 class TestMolopolyNonBlockService : public CerberusService
 {
 public:
-	TestMolopolyNonBlockService(Cerberus* c);
+	TestMolopolyNonBlockService();
 	void dispatch();
 	void handle_event(CerberusEvent* event);
 };

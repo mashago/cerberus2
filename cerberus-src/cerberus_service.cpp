@@ -11,6 +11,13 @@ extern "C"
 #include "cerberus_core.h"
 #include "cerberus_service.h"
 
+CerberusService::CerberusService() :
+is_active(false),
+is_release(false),
+is_block(true)
+{
+}
+
 CerberusService::CerberusService(Cerberus* c) :
 c(c),
 is_active(false),
@@ -21,6 +28,11 @@ is_block(true)
 
 CerberusService::~CerberusService()
 {
+}
+
+void CerberusService::set_cerberus(Cerberus *cer)
+{
+    c = cer;
 }
 
 CerberusEvent* CerberusService::pop_event()

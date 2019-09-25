@@ -19,9 +19,11 @@ public:
 	std::list<CerberusEvent*> event_list;
 	CerberusThread* thread_mgr;
 
+	CerberusService();
 	CerberusService(Cerberus* c);
     virtual ~CerberusService();
 	
+    void set_cerberus(Cerberus *c);
 	CerberusEvent* pop_event();
 	void pop_events(std::list<CerberusEvent*>& l);
 	bool push_event(CerberusEvent* event);

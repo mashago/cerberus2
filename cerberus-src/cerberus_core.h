@@ -8,20 +8,22 @@ class CerberusEvent;
 class CerberusService;
 class CerberusShareThread;
 class CerberusMonopolyThread;
+class CerberusServiceLoader;
 
 class Cerberus
 {
 public:
 	Cerberus();
 	~Cerberus();
-	int dispatch_monopoly_thread_service(CerberusService* service);
-	int dispatch_share_thread_service(CerberusService* service);
-	void release_service(CerberusService* service);
-	bool push_event(CerberusEvent* event);
+	int dispatch_monopoly_thread_service(CerberusService *service);
+	int dispatch_share_thread_service(CerberusService *service);
+	void release_service(CerberusService *service);
+	bool push_event(CerberusEvent *event);
 	void start();
 private:
 	std::mutex service_mtx;
-	std::map<int, CerberusService*> service_map;
-	CerberusShareThread* share_thread_mgr;
-	std::list <CerberusMonopolyThread*> monopoly_thread_list;
+	std::map<int, CerberusService *> service_map;
+	CerberusShareThread *share_thread_mgr;
+	std::list <CerberusMonopolyThread *> monopoly_thread_list;
+    CerberusServiceLoader *loader;
 };

@@ -12,12 +12,12 @@ extern "C"
 #include "cerberus_event.h"
 #include "cerberus_core.h"
 #include "cerberus_service.h"
-#include "cerberus_test.h"
+
+#include "service_test.h"
 
 std::vector<int> all_service_vec;
 
-TestService::TestService(Cerberus* c) :
-CerberusService(c)
+TestService::TestService()
 {
 }
 
@@ -29,16 +29,19 @@ void TestService::handle_event(CerberusEvent* event)
 	int service_count = 8;
 	for (int i = 0; i < service_count; ++i)
 	{
-		TestShareService* s = new TestShareService(c);
+		TestShareService* s = new TestShareService();
+        s->set_cerberus(c);
 		service_id = c->dispatch_share_thread_service(s);
 		all_service_vec.push_back(service_id);
 	}
 
-	CerberusService* s1 = new TestMolopolyBlockService(c);
+	CerberusService* s1 = new TestMolopolyBlockService();
+    s1->set_cerberus(c);
 	service_id = c->dispatch_monopoly_thread_service(s1);
 	all_service_vec.push_back(service_id);
 
-	CerberusService* s2 = new TestMolopolyNonBlockService(c);
+	CerberusService* s2 = new TestMolopolyNonBlockService();
+    s2->set_cerberus(c);
 	service_id = c->dispatch_monopoly_thread_service(s2);
 	all_service_vec.push_back(service_id);
     release();
@@ -72,8 +75,7 @@ int random_service(int def)
 	return all_service_vec[rand() % size];
 }
 
-TestShareService::TestShareService(Cerberus* c) :
-CerberusService(c)
+TestShareService::TestShareService()
 {
 }
 
@@ -90,8 +92,7 @@ void TestShareService::handle_event(CerberusEvent* event)
 	c->push_event(new_event);
 }
 
-TestMolopolyBlockService::TestMolopolyBlockService(Cerberus* c) :
-CerberusService(c)
+TestMolopolyBlockService::TestMolopolyBlockService()
 {
 }
 
@@ -108,8 +109,7 @@ void TestMolopolyBlockService::handle_event(CerberusEvent* event)
 	c->push_event(new_event);
 }
 
-TestMolopolyNonBlockService::TestMolopolyNonBlockService(Cerberus* c) :
-CerberusService(c)
+TestMolopolyNonBlockService::TestMolopolyNonBlockService()
 {
 	is_block = false;
 }
@@ -148,3 +148,15 @@ void TestMolopolyNonBlockService::dispatch()
 	}
 }
 
+
+#ifdef _WIN32
+#define MY_EXPORT __declspec (dllexport)
+#else
+#define MY_EXPORT
+#endif
+
+extern "C" MY_EXPORT void *cerberus_open_service()
+{
+	CerberusService* s = new TestService();
+    return (void *)s;
+}
