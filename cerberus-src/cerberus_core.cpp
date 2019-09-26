@@ -96,6 +96,7 @@ void Cerberus::start()
         printf("test load error\n");
         return;
     }
+    s->set_cerberus(this);
 	dispatch_share_thread_service(s);
 	
 	share_thread_mgr->dispatch();

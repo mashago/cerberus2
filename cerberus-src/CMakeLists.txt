@@ -22,6 +22,7 @@ SOURCE_GROUP("source" FILES ${FILES_SOURCE})
 
 #5.lib
 LINK_DIRECTORIES(
+${PROJECT_PATH}/lib
 /usr/lib
 /usr/local/lib
 )

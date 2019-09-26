@@ -54,7 +54,6 @@ void dl_unload_lib(void *lib)
 	FreeLibrary((HMODULE)lib);
 }
 
-#define snprintf(buffer, count, format, ...) do {_snprintf_s(buffer, count, count-1, format, ##__VA_ARGS__);} while (false)
 char *dl_error(char *buffer, int size)
 {
 	int error = GetLastError();
