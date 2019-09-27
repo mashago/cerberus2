@@ -1,9 +1,11 @@
 
 #include <stdio.h>
+#include "cerberus_core.h"
 #include "cerberus_util.h"
-#include "cerberus_service_loader.h"
+#include "cerberus_loader.h"
 
-static const char *DL_OPEN_FUNC = "cerberus_open_service";
+static const char *DL_CREATE_FUNC = "cerberus_create_service";
+typedef void* (*dl_create_func)(Cerberus *);
 
 const char *_get_dl_name(const char *service_name)
 {
@@ -21,7 +23,12 @@ const char *_get_dl_name(const char *service_name)
     return path;
 }
 
-CerberusService *CerberusServiceLoader::load(const char *service_name)
+CerberusLoader::CerberusLoader(Cerberus* c) :
+c(c)
+{
+}
+
+CerberusService *CerberusLoader::load(const char *service_name)
 {
 	std::unique_lock<std::mutex> lock(mtx);
     const int BUFFER_SIZE = 100;
@@ -46,20 +53,14 @@ CerberusService *CerberusServiceLoader::load(const char *service_name)
         dl_map.insert(std::make_pair(path, lib));
     }
 
-    dl_func open_func = dl_load_func(lib, DL_OPEN_FUNC);
-    if (!open_func)
+    dl_create_func create_func = (dl_create_func)dl_load_func(lib, DL_CREATE_FUNC);
+    if (!create_func)
     {
         printf("dl_load_func fail %s\n", dl_error(error_msg, BUFFER_SIZE));
         dl_unload_lib(lib);
         return nullptr;
     }
 
-    CerberusService *service = (CerberusService *)open_func();
+    CerberusService *service = (CerberusService *)create_func(c);
     return service;
-}
-
-void CerberusServiceLoader::unload(const char *service_name)
-{
-    const char *path = _get_dl_name(service_name);
-    dl_map.erase(path);
 }

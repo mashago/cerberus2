@@ -8,7 +8,7 @@ class CerberusEvent;
 class CerberusService;
 class CerberusShareThread;
 class CerberusMonopolyThread;
-class CerberusServiceLoader;
+class CerberusLoader;
 
 class Cerberus
 {
@@ -25,5 +25,5 @@ private:
 	std::map<int, CerberusService *> service_map;
 	CerberusShareThread *share_thread_mgr;
 	std::list <CerberusMonopolyThread *> monopoly_thread_list;
-    CerberusServiceLoader *loader;
+    CerberusLoader *service_loader;
 };

@@ -4,12 +4,15 @@
 #include <mutex>
 #include "cerberus_util.h"
 
+class Cerberus;
 class CerberusService;
-class CerberusServiceLoader
+class CerberusLoader
 {
 public:
-    CerberusService *load(const char *service_name);    
-    void unload(const char *service_name);
+	Cerberus* c;
     std::map<std::string, void *> dl_map;
     std::mutex mtx;
+
+	CerberusLoader(Cerberus* c);
+    CerberusService *load(const char *service_name);    
 };

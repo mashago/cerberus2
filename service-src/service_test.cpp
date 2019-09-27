@@ -17,7 +17,8 @@ extern "C"
 
 std::vector<int> all_service_vec;
 
-TestService::TestService()
+TestService::TestService(Cerberus *c) :
+CerberusService(c)
 {
 }
 
@@ -29,19 +30,16 @@ void TestService::handle_event(CerberusEvent* event)
 	int service_count = 8;
 	for (int i = 0; i < service_count; ++i)
 	{
-		TestShareService* s = new TestShareService();
-        s->set_cerberus(c);
+		TestShareService* s = new TestShareService(c);
 		service_id = c->dispatch_share_thread_service(s);
 		all_service_vec.push_back(service_id);
 	}
 
-	CerberusService* s1 = new TestMolopolyBlockService();
-    s1->set_cerberus(c);
+	CerberusService* s1 = new TestMolopolyBlockService(c);
 	service_id = c->dispatch_monopoly_thread_service(s1);
 	all_service_vec.push_back(service_id);
 
-	CerberusService* s2 = new TestMolopolyNonBlockService();
-    s2->set_cerberus(c);
+	CerberusService* s2 = new TestMolopolyNonBlockService(c);
 	service_id = c->dispatch_monopoly_thread_service(s2);
 	all_service_vec.push_back(service_id);
     release();
@@ -75,7 +73,8 @@ int random_service(int def)
 	return all_service_vec[rand() % size];
 }
 
-TestShareService::TestShareService()
+TestShareService::TestShareService(Cerberus *c) :
+CerberusService(c)
 {
 }
 
@@ -92,7 +91,8 @@ void TestShareService::handle_event(CerberusEvent* event)
 	c->push_event(new_event);
 }
 
-TestMolopolyBlockService::TestMolopolyBlockService()
+TestMolopolyBlockService::TestMolopolyBlockService(Cerberus *c) :
+CerberusService(c)
 {
 }
 
@@ -109,7 +109,8 @@ void TestMolopolyBlockService::handle_event(CerberusEvent* event)
 	c->push_event(new_event);
 }
 
-TestMolopolyNonBlockService::TestMolopolyNonBlockService()
+TestMolopolyNonBlockService::TestMolopolyNonBlockService(Cerberus *c) :
+CerberusService(c)
 {
 	is_block = false;
 }
@@ -155,8 +156,8 @@ void TestMolopolyNonBlockService::dispatch()
 #define MY_EXPORT
 #endif
 
-extern "C" MY_EXPORT void *cerberus_open_service()
+extern "C" MY_EXPORT void *cerberus_create_service(Cerberus *c)
 {
-	CerberusService* s = new TestService();
+	CerberusService* s = new TestService(c);
     return (void *)s;
 }

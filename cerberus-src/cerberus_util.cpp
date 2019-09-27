@@ -17,10 +17,9 @@ void *dl_load_lib(const char *path)
 	return lib;
 }
 
-dl_func dl_load_func(void *lib, const char *sym)
+void *dl_load_func(void *lib, const char *sym)
 {
-    dl_func func = (dl_func)dlsym(lib, sym);
-	return func;
+    return (void *)dlsym(lib, sym);
 }
 
 void dl_unload_lib(void *lib)
@@ -43,10 +42,9 @@ void *dl_load_lib(const char *path)
 	return lib;
 }
 
-dl_func dl_load_func(void *lib, const char *sym)
+void *dl_load_func(void *lib, const char *sym)
 {
-	dl_func func = (dl_func)GetProcAddress((HMODULE)lib, sym);
-	return func;
+    return (void *)GetProcAddress((HMODULE)lib, sym);
 }
 
 void dl_unload_lib(void *lib)
