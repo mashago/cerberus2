@@ -2,9 +2,11 @@
 extern "C"
 {
 #include <stdio.h>
-#include <unistd.h>
 #include <stdint.h>
 #include <stdlib.h>
+#ifndef WIN32
+#include <unistd.h>
+#endif
 }
 
 #include <vector>

@@ -15,7 +15,7 @@ const char *_get_dl_name(const char *service_name)
 #if __APPLE__
     snprintf(path, PATH_SIZE, "lib%s.dylib", service_name);
 #elif WIN32
-    snprintf(path, PATH_SIZE, "%s.dll", service_name);
+    snprintf(path, PATH_SIZE, "../lib/%s.dll", service_name);
 #else
     snprintf(path, PATH_SIZE, "lib%s.so", service_name);
 #endif

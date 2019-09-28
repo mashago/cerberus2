@@ -33,6 +33,7 @@ void share_thread_run(CerberusShareThread* thread_mgr, int i)
 void CerberusShareThread::dispatch()
 {
 	std::thread tl[thread_num];
+	// std::thread tl[3];
 	for (int i = 0; i < thread_num; ++i)
 	{
 		printf("i=%d\n", i);

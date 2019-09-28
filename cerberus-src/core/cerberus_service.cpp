@@ -2,8 +2,10 @@
 extern "C"
 {
 #include <stdio.h>
-#include <unistd.h>
 #include <stdint.h>
+#ifndef WIN32
+#include <unistd.h>
+#endif
 }
 
 #include "cerberus_util.h"
