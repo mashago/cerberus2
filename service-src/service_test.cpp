@@ -47,13 +47,14 @@ void TestService::handle_event(CerberusEvent* event)
     release();
 }
 
-void handle_busy_event()
+int64_t handle_busy_event()
 {
-	int n = 0;
+	int64_t n = 0;
 	for (int64_t i = 0; i < 100000; i++)
 	{
 		n += i;
 	}
+	return n;
 }
 
 CerberusEvent* create_busy_event(int src_id, int dest_id)
@@ -67,7 +68,7 @@ CerberusEvent* create_busy_event(int src_id, int dest_id)
 
 int random_service(int def)
 {
-	int size = all_service_vec.size();
+	size_t size = all_service_vec.size();
 	if (size == 0)
 	{
 		return def;

@@ -17,7 +17,8 @@ extern "C"
 
 Cerberus::Cerberus() : share_thread_mgr(nullptr)
 {
-	share_thread_mgr = new CerberusShareThread(3);
+	current_service_id = 0;
+	share_thread_mgr = new CerberusShareThread();
 	service_loader = new CerberusLoader(this);
 }
 
@@ -26,12 +27,10 @@ Cerberus::~Cerberus()
 	delete share_thread_mgr;
 }
 
-static int id = 0;
-
 int Cerberus::dispatch_monopoly_thread_service(CerberusService* service)
 {
 	std::unique_lock<std::mutex> lock_big(service_mtx);
-	service->id = ++id;
+	service->id = ++current_service_id;
 	service_map.insert(std::make_pair(service->id, service));
 
 	CerberusEvent* start_event = new CerberusEvent();
@@ -52,7 +51,7 @@ int Cerberus::dispatch_monopoly_thread_service(CerberusService* service)
 int Cerberus::dispatch_share_thread_service(CerberusService* service)
 {
 	std::unique_lock<std::mutex> lock_big(service_mtx);
-	service->id = ++id;
+	service->id = ++current_service_id;
 	service_map.insert(std::make_pair(service->id, service));
 
 	CerberusEvent* start_event = new CerberusEvent();
@@ -77,6 +76,7 @@ void Cerberus::release_service(CerberusService* service)
 bool Cerberus::push_event(CerberusEvent* event)
 {
 	std::unique_lock<std::mutex> lock_big(service_mtx);
+	printf("Cerberus push_event src_id=%d event_type=%d dest_id=%d\n", event->src_id, event->type, event->dest_id);
 	auto it = service_map.find(event->dest_id);
 	if (it == service_map.end())
 	{

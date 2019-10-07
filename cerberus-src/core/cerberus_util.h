@@ -1,5 +1,9 @@
 #pragma once
 
+#ifdef _WIN32
+#include <windows.h>
+#endif
+
 #include <memory>
 
 // clear pointer container
@@ -24,5 +28,10 @@ char *dl_error(char *buffer, int size);
 #ifdef WIN32
 
 #define snprintf(buffer, count, format, ...) do {_snprintf_s(buffer, count, count-1, format, ##__VA_ARGS__);} while (false)
+
+inline void sleep(int second)
+{
+	Sleep(second * 1000);
+}
 
 #endif

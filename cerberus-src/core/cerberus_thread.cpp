@@ -13,7 +13,9 @@ CerberusThread::~CerberusThread()
 
 ///////////////////////////////////////////////////////
 
-CerberusShareThread::CerberusShareThread(int thread_num) : thread_num(thread_num)
+#define THREAD_NUM 4
+
+CerberusShareThread::CerberusShareThread()
 {
 }
 
@@ -32,15 +34,14 @@ void share_thread_run(CerberusShareThread* thread_mgr, int i)
 
 void CerberusShareThread::dispatch()
 {
-	std::thread tl[thread_num];
-	// std::thread tl[3];
-	for (int i = 0; i < thread_num; ++i)
+	std::thread tl[THREAD_NUM];
+	for (int i = 0; i < THREAD_NUM; ++i)
 	{
 		printf("i=%d\n", i);
 		tl[i] = std::thread(share_thread_run, this, i);
 	}
 
-	for (int i = 0; i < thread_num; ++i)
+	for (int i = 0; i < THREAD_NUM; ++i)
 	{
 		tl[i].join();
 	}

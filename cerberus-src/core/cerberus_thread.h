@@ -25,7 +25,7 @@ public:
 class CerberusShareThread : public CerberusThread
 {
 public:
-	CerberusShareThread(int thread_num);
+	CerberusShareThread();
 	void dispatch();
 	bool loop();
 	bool push_event(CerberusService* service, CerberusEvent* event);
@@ -35,7 +35,6 @@ public:
 	bool empty_active_list();
 	CerberusService* get_active_service();
 private:
-	const int thread_num;
 	std::list<CerberusService*> active_service_list;
 };
 

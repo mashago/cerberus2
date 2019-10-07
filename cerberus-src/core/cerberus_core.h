@@ -21,6 +21,7 @@ public:
 	bool push_event(CerberusEvent *event);
 	void start();
 private:
+	int current_service_id;
 	std::mutex service_mtx;
 	std::map<int, CerberusService *> service_map;
 	CerberusShareThread *share_thread_mgr;
