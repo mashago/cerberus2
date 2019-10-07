@@ -180,6 +180,7 @@ bool CerberusMonopolyThread::loop()
 	}
 
 	service->handle_event(event);
+	delete event;
     if (service->is_release)
     {
         delete service;
