@@ -1,6 +1,6 @@
 
 #include <stdio.h>
-#include "cerberus_core.h"
+#include "cerberus.h"
 #include "cerberus_util.h"
 #include "cerberus_loader.h"
 

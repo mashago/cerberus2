@@ -25,6 +25,7 @@ public:
 	CerberusEvent* pop_event();
 	void pop_events(std::list<CerberusEvent*>& l);
 	bool push_event(CerberusEvent* event);
+	void active();
 	virtual void handle_event(CerberusEvent* event);
 	virtual void dispatch(); // work with monopoly nonblock thread
     void release();

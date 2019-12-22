@@ -12,7 +12,7 @@ extern "C"
 #include <vector>
 #include "cerberus_util.h"
 #include "cerberus_event.h"
-#include "cerberus_core.h"
+#include "cerberus.h"
 #include "cerberus_service.h"
 
 #include "service_test.h"

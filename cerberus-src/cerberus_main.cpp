@@ -3,7 +3,7 @@ extern "C"
 {
 #include <stdio.h>
 }
-#include "cerberus_core.h"
+#include "cerberus.h"
 
 int main(int argc, char** argv)
 {

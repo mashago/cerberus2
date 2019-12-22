@@ -10,7 +10,7 @@ extern "C"
 
 #include "cerberus_util.h"
 #include "cerberus_event.h"
-#include "cerberus_core.h"
+#include "cerberus.h"
 #include "cerberus_service.h"
 
 CerberusService::CerberusService(Cerberus* c) :
@@ -57,6 +57,17 @@ bool CerberusService::push_event(CerberusEvent* event)
 		return false;
 	}
 	return true;
+}
+
+void CerberusService::active()
+{
+	CerberusEvent* event = new CerberusEvent();
+	event->type = CerberusEventType::EVENT_STARTUP;
+	event->src_id = 0;
+	event->dest_id = id;
+
+	event_list.push_back(event);
+	is_active = true;
 }
 
 void CerberusService::handle_event(CerberusEvent* event)
