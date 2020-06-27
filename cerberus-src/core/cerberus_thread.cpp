@@ -202,3 +202,25 @@ void CerberusMonopolyThread::join()
 {
 	td.join();
 }
+
+///////////////////////////////////////////////////
+
+CerberusMonopolyThreadMgr::CerberusMonopolyThreadMgr()
+{
+}
+
+CerberusMonopolyThread *CerberusMonopolyThreadMgr::new_thread(CerberusService *service)
+{
+	CerberusMonopolyThread* thd = new CerberusMonopolyThread(service);
+	monopoly_thread_list.push_back(thd);
+	return thd;
+}
+
+void CerberusMonopolyThreadMgr::join()
+{
+	for (auto iter = monopoly_thread_list.begin(); iter != monopoly_thread_list.end(); ++iter)
+	{
+		(*iter)->join();
+	}
+}
+

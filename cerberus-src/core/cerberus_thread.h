@@ -51,3 +51,14 @@ public:
 private:
 	std::thread td;
 };
+
+class CerberusMonopolyThreadMgr
+{
+public:
+	CerberusMonopolyThreadMgr();
+	CerberusMonopolyThread *new_thread(CerberusService *service);
+	void join();
+private:
+	std::list <CerberusMonopolyThread *> monopoly_thread_list;
+};
+

@@ -7,7 +7,7 @@
 class CerberusEvent;
 class CerberusService;
 class CerberusShareThread;
-class CerberusMonopolyThread;
+class CerberusMonopolyThreadMgr;
 class CerberusLoader;
 
 class Cerberus
@@ -25,8 +25,8 @@ private:
 	std::mutex service_mtx;
 	std::map<int, CerberusService *> service_map;
 	CerberusShareThread *share_thread_mgr;
-	std::list <CerberusMonopolyThread *> monopoly_thread_list;
+	CerberusMonopolyThreadMgr *monopoly_thread_mgr;
     CerberusLoader *service_loader;
-	int gen_service_id();
-	void add_service(CerberusService *service);
+	int _gen_service_id();
+	void _add_service(CerberusService *service);
 };

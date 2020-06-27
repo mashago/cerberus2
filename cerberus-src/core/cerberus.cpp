@@ -18,6 +18,7 @@ extern "C"
 Cerberus::Cerberus() : current_service_id(0), share_thread_mgr(nullptr)
 {
 	share_thread_mgr = new CerberusShareThread();
+	monopoly_thread_mgr = new CerberusMonopolyThreadMgr();
 	service_loader = new CerberusLoader(this);
 }
 
@@ -26,25 +27,24 @@ Cerberus::~Cerberus()
 	delete share_thread_mgr;
 }
 
-int Cerberus::gen_service_id()
+int Cerberus::_gen_service_id()
 {
 	return ++current_service_id;
 }
 
-void Cerberus::add_service(CerberusService *service)
+void Cerberus::_add_service(CerberusService *service)
 {
 	std::unique_lock<std::mutex> lock_big(service_mtx);
-	service->id = gen_service_id();
+	service->id = _gen_service_id();
 	service_map.insert(std::make_pair(service->id, service));
 	service->active();
 }
 
 int Cerberus::dispatch_monopoly_thread_service(CerberusService* service)
 {
-	add_service(service);
-	CerberusMonopolyThread* monoploy_thread_mgr = new CerberusMonopolyThread(service);
-	monopoly_thread_list.push_back(monoploy_thread_mgr);
-	monoploy_thread_mgr->dispatch();
+	_add_service(service);
+	CerberusMonopolyThread* thd = monopoly_thread_mgr->new_thread(service);
+	thd->dispatch();
 
 	return service->id;
 }
@@ -53,7 +53,7 @@ int Cerberus::dispatch_monopoly_thread_service(CerberusService* service)
 // create service, push into service list, push start event
 int Cerberus::dispatch_share_thread_service(CerberusService* service)
 {
-	add_service(service);
+	_add_service(service);
 	share_thread_mgr->add_service(service);
 
 	return service->id;
@@ -84,7 +84,7 @@ void Cerberus::start()
 {
     srand((unsigned)time(NULL));
 	// init main
-	CerberusService* s = service_loader->load("service_test");
+	CerberusService *s = service_loader->load("service_test");
     if (!s)
     {
         printf("test load error\n");
@@ -93,9 +93,5 @@ void Cerberus::start()
 	dispatch_share_thread_service(s);
 	
 	share_thread_mgr->dispatch();
-
-	for (auto iter = monopoly_thread_list.begin(); iter != monopoly_thread_list.end(); ++iter)
-	{
-		(*iter)->join();
-	}
+	monopoly_thread_mgr->join();
 }
