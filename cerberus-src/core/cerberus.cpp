@@ -92,6 +92,7 @@ void Cerberus::start()
     }
 	dispatch_share_thread_service(s);
 	
+    share_thread_mgr->set_thread_count(4);
 	share_thread_mgr->dispatch();
 	monopoly_thread_mgr->join();
 }

@@ -30,11 +30,13 @@ public:
 	bool loop();
 	bool push_event(CerberusService* service, CerberusEvent* event);
 
+    void set_thread_count(int thread_count);
 	void add_service(CerberusService* service);
 	void check_active(CerberusService* service);
 	bool empty_active_list();
 	CerberusService* get_active_service();
 private:
+    int thread_count;
 	std::list<CerberusService*> active_service_list;
 };
 

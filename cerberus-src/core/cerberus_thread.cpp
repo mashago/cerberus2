@@ -13,8 +13,6 @@ CerberusThread::~CerberusThread()
 
 ///////////////////////////////////////////////////////
 
-#define THREAD_NUM 4
-
 CerberusShareThread::CerberusShareThread()
 {
 }
@@ -34,16 +32,16 @@ void share_thread_run(CerberusShareThread* thread_mgr, int i)
 
 void CerberusShareThread::dispatch()
 {
-	std::thread tl[THREAD_NUM];
-	for (int i = 0; i < THREAD_NUM; ++i)
+    std::list<std::thread> tl;
+	for (int i = 0; i < thread_count; ++i)
 	{
 		printf("i=%d\n", i);
-		tl[i] = std::thread(share_thread_run, this, i);
+		tl.push_back(std::thread(share_thread_run, this, i));
 	}
 
-	for (int i = 0; i < THREAD_NUM; ++i)
+	for (auto &t : tl)
 	{
-		tl[i].join();
+		t.join();
 	}
 }
 
@@ -85,6 +83,11 @@ bool CerberusShareThread::push_event(CerberusService* service, CerberusEvent* ev
 	}
 	active_service_cv.notify_one();
 	return true;
+}
+
+void CerberusShareThread::set_thread_count(int thread_count)
+{
+    this->thread_count = thread_count;
 }
 
 void CerberusShareThread::add_service(CerberusService* service)
