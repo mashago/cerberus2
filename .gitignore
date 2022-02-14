@@ -1,0 +1,8 @@
+*.swp
+CMakeCache.txt
+CMakeFiles/
+Makefile
+cmake_install.cmake
+liblcerberus.a
+bin/
+lib/
