@@ -144,7 +144,7 @@ CerberusMonopolyThread::CerberusMonopolyThread(CerberusService* service) : servi
 	service->thread_mgr = this;
 }
 
-void monoploy_thread_block_run(CerberusMonopolyThread* thread_mgr)
+void monopoly_thread_block_run(CerberusMonopolyThread* thread_mgr)
 {
 	while (thread_mgr->is_running)
 	{
@@ -156,7 +156,7 @@ void monoploy_thread_block_run(CerberusMonopolyThread* thread_mgr)
 	}
 }
 
-void monoploy_thread_non_block_run(CerberusMonopolyThread* thread_mgr)
+void monopoly_thread_non_block_run(CerberusMonopolyThread* thread_mgr)
 {
 	// only run servier dispatch, just let service get its event
 	thread_mgr->service->dispatch();
@@ -166,11 +166,11 @@ void CerberusMonopolyThread::dispatch()
 {
 	if (service->is_block)
 	{
-		td = std::thread(monoploy_thread_block_run, this);
+		td = std::thread(monopoly_thread_block_run, this);
 	}
 	else
 	{
-		td = std::thread(monoploy_thread_non_block_run, this);
+		td = std::thread(monopoly_thread_non_block_run, this);
 	}
 }
 

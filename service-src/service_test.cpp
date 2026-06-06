@@ -9,6 +9,7 @@ extern "C"
 #endif
 }
 
+#include <random>
 #include <vector>
 #include "cerberus_util.h"
 #include "cerberus_event.h"
@@ -37,11 +38,11 @@ void TestService::handle_event(CerberusEvent* event)
 		all_service_vec.push_back(service_id);
 	}
 
-	CerberusService* s1 = new TestMolopolyBlockService(c);
+	CerberusService* s1 = new TestMonopolyBlockService(c);
 	service_id = c->dispatch_monopoly_thread_service(s1);
 	all_service_vec.push_back(service_id);
 
-	CerberusService* s2 = new TestMolopolyNonBlockService(c);
+	CerberusService* s2 = new TestMonopolyNonBlockService(c);
 	service_id = c->dispatch_monopoly_thread_service(s2);
 	all_service_vec.push_back(service_id);
     release();
@@ -73,7 +74,10 @@ int random_service(int def)
 	{
 		return def;
 	}
-	return all_service_vec[rand() % size];
+
+	thread_local std::mt19937 gen(std::random_device{}());
+	std::uniform_int_distribution<size_t> dist(0, size - 1);
+	return all_service_vec[dist(gen)];
 }
 
 TestShareService::TestShareService(Cerberus *c) :
@@ -94,14 +98,14 @@ void TestShareService::handle_event(CerberusEvent* event)
 	c->push_event(new_event);
 }
 
-TestMolopolyBlockService::TestMolopolyBlockService(Cerberus *c) :
+TestMonopolyBlockService::TestMonopolyBlockService(Cerberus *c) :
 CerberusService(c)
 {
 }
 
-void TestMolopolyBlockService::handle_event(CerberusEvent* event)
+void TestMonopolyBlockService::handle_event(CerberusEvent* event)
 {
-	printf("TestMolopolyBlockService handle_event src_id=%d event_type=%d dest_id=%d\n", event->src_id, event->type, event->dest_id);
+	printf("TestMonopolyBlockService handle_event src_id=%d event_type=%d dest_id=%d\n", event->src_id, event->type, event->dest_id);
 	if (event->type == CerberusEventType::EVENT_BUSY)
 	{
 		handle_busy_event();
@@ -112,15 +116,15 @@ void TestMolopolyBlockService::handle_event(CerberusEvent* event)
 	c->push_event(new_event);
 }
 
-TestMolopolyNonBlockService::TestMolopolyNonBlockService(Cerberus *c) :
+TestMonopolyNonBlockService::TestMonopolyNonBlockService(Cerberus *c) :
 CerberusService(c)
 {
 	is_block = false;
 }
 
-void TestMolopolyNonBlockService::handle_event(CerberusEvent* event)
+void TestMonopolyNonBlockService::handle_event(CerberusEvent* event)
 {
-	printf("TestMolopolyNonBlockService handle_event src_id=%d event_type=%d dest_id=%d\n", event->src_id, event->type, event->dest_id);
+	printf("TestMonopolyNonBlockService handle_event src_id=%d event_type=%d dest_id=%d\n", event->src_id, event->type, event->dest_id);
 	if (event->type == CerberusEventType::EVENT_BUSY)
 	{
 		handle_busy_event();
@@ -131,7 +135,7 @@ void TestMolopolyNonBlockService::handle_event(CerberusEvent* event)
 	c->push_event(new_event);
 }
 
-void TestMolopolyNonBlockService::dispatch()
+void TestMonopolyNonBlockService::dispatch()
 {
 	std::list<CerberusEvent*> dest;
 	while(true)
@@ -139,7 +143,7 @@ void TestMolopolyNonBlockService::dispatch()
 		pop_events(dest);
 		if (dest.empty())
 		{
-			// printf("TestMolopolyNonBlockService no event\n");
+			// printf("TestMonopolyNonBlockService no event\n");
 			// sleep(1);
 			continue;
 		}

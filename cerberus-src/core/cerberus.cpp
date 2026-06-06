@@ -82,7 +82,6 @@ bool Cerberus::push_event(CerberusEvent* event)
 
 void Cerberus::start()
 {
-    srand((unsigned)time(NULL));
 	// init main
 	CerberusService *s = service_loader->load("service_test");
     if (!s)

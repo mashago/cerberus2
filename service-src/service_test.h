@@ -18,17 +18,17 @@ public:
 	void handle_event(CerberusEvent* event);
 };
 
-class TestMolopolyBlockService : public CerberusService
+class TestMonopolyBlockService : public CerberusService
 {
 public:
-	TestMolopolyBlockService(Cerberus *c);
+	TestMonopolyBlockService(Cerberus *c);
 	void handle_event(CerberusEvent* event);
 };
 
-class TestMolopolyNonBlockService : public CerberusService
+class TestMonopolyNonBlockService : public CerberusService
 {
 public:
-	TestMolopolyNonBlockService(Cerberus *c);
+	TestMonopolyNonBlockService(Cerberus *c);
 	void dispatch();
 	void handle_event(CerberusEvent* event);
 };
