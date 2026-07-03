@@ -1,6 +1,7 @@
 #pragma once
 
 #include <map>
+#include <string>
 #include <mutex>
 #include "cerberus_util.h"
 

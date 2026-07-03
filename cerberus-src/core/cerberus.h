@@ -4,6 +4,8 @@
 #include <map>
 #include <mutex>
 
+#include "cerberus_rwlock.h"
+
 class CerberusEvent;
 class CerberusService;
 class CerberusShareThread;
@@ -22,7 +24,7 @@ public:
 	void start();
 private:
 	int current_service_id;
-	std::mutex service_mtx;
+	RWLock service_rwlock;
 	std::map<int, CerberusService *> service_map;
 	CerberusShareThread *share_thread_mgr;
 	CerberusMonopolyThreadMgr *monopoly_thread_mgr;

@@ -15,6 +15,7 @@ extern "C"
 #include "cerberus_event.h"
 #include "cerberus.h"
 #include "cerberus_service.h"
+#include "cerberus_log.h"
 
 #include "service_test.h"
 
@@ -27,7 +28,7 @@ CerberusService(c)
 
 void TestService::handle_event(CerberusEvent* event)
 {
-	printf("handle_event src_id=%d event_type=%d dest_id=%d\n", event->src_id, event->type, event->dest_id);
+	Log::debug("handle_event src_id=%d event_type=%d dest_id=%d", event->src_id, event->type, event->dest_id);
 
 	int service_id = 0;
 	int service_count = 8;
@@ -87,7 +88,7 @@ CerberusService(c)
 
 void TestShareService::handle_event(CerberusEvent* event)
 {
-	printf("TestShareService handle_event src_id=%d event_type=%d dest_id=%d\n", event->src_id, event->type, event->dest_id);
+	Log::debug("TestShareService handle_event src_id=%d event_type=%d dest_id=%d", event->src_id, event->type, event->dest_id);
 	if (event->type == CerberusEventType::EVENT_BUSY)
 	{
 		handle_busy_event();
@@ -105,7 +106,7 @@ CerberusService(c)
 
 void TestMonopolyBlockService::handle_event(CerberusEvent* event)
 {
-	printf("TestMonopolyBlockService handle_event src_id=%d event_type=%d dest_id=%d\n", event->src_id, event->type, event->dest_id);
+	Log::debug("TestMonopolyBlockService handle_event src_id=%d event_type=%d dest_id=%d", event->src_id, event->type, event->dest_id);
 	if (event->type == CerberusEventType::EVENT_BUSY)
 	{
 		handle_busy_event();
@@ -124,7 +125,7 @@ CerberusService(c)
 
 void TestMonopolyNonBlockService::handle_event(CerberusEvent* event)
 {
-	printf("TestMonopolyNonBlockService handle_event src_id=%d event_type=%d dest_id=%d\n", event->src_id, event->type, event->dest_id);
+	Log::debug("TestMonopolyNonBlockService handle_event src_id=%d event_type=%d dest_id=%d", event->src_id, event->type, event->dest_id);
 	if (event->type == CerberusEventType::EVENT_BUSY)
 	{
 		handle_busy_event();

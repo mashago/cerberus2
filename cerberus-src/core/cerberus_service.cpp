@@ -12,6 +12,7 @@ extern "C"
 #include "cerberus_event.h"
 #include "cerberus.h"
 #include "cerberus_service.h"
+#include "cerberus_log.h"
 
 CerberusService::CerberusService(Cerberus* c) :
 c(c),
@@ -40,11 +41,7 @@ CerberusEvent* CerberusService::pop_event()
 void CerberusService::pop_events(std::list<CerberusEvent*>& dest)
 {
 	std::unique_lock<std::mutex> lock(mtx);
-	for (auto iter = event_list.begin(); iter != event_list.end(); ++iter)
-	{
-		dest.push_back(*iter);
-	}
-	event_list.clear();
+	dest.splice(dest.end(), event_list);
 }
 
 bool CerberusService::push_event(CerberusEvent* event)
@@ -73,13 +70,13 @@ void CerberusService::active()
 void CerberusService::handle_event(CerberusEvent* event)
 {
 	// default do nothing
-	printf("service handle_event do nothing\n");
+	Log::debug("service handle_event do nothing");
 }
 
 void CerberusService::dispatch()
 {
 	// default do nothing
-	printf("service dispatch do nothing\n");
+	Log::debug("service dispatch do nothing");
 }
 
 void CerberusService::release()

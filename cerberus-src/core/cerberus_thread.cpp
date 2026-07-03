@@ -2,6 +2,7 @@
 #include "cerberus_thread.h"
 #include "cerberus_event.h"
 #include "cerberus_service.h"
+#include "cerberus_log.h"
 
 CerberusThread::CerberusThread() : is_running(true)
 {
@@ -23,7 +24,7 @@ void share_thread_run(CerberusShareThread* thread_mgr, int i)
 	{
 		if (!thread_mgr->loop())
 		{
-		    printf("thread sleep i=%d\n", i);
+		    Log::debug("thread sleep i=%d", i);
 			std::unique_lock<std::mutex> lock(thread_mgr->thread_mtx);
 			thread_mgr->active_service_cv.wait(lock, [thread_mgr](){ return !thread_mgr->empty_active_list(); });
 		}
@@ -35,7 +36,7 @@ void CerberusShareThread::dispatch()
     std::list<std::thread> tl;
 	for (int i = 0; i < thread_count; ++i)
 	{
-		printf("i=%d\n", i);
+ 		Log::debug("i=%d", i);
 		tl.push_back(std::thread(share_thread_run, this, i));
 	}
 
@@ -105,18 +106,10 @@ void CerberusShareThread::check_active(CerberusService* service)
 	{
 		active_service_list.push_back(service);
 		active_service_cv.notify_one();
-		return;
-	}
-
-	std::unique_lock<std::mutex> lock_small(service->mtx);
-	if (service->event_list.empty())
-	{
-		service->is_active = false;
 	}
 	else
 	{
-		active_service_list.push_back(service);
-		active_service_cv.notify_one();
+		service->is_active = false;
 	}
 }
 

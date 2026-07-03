@@ -14,6 +14,7 @@ extern "C"
 #include "cerberus_service.h"
 #include "cerberus_thread.h"
 #include "cerberus_loader.h"
+#include "cerberus_log.h"
 
 Cerberus::Cerberus() : current_service_id(0), share_thread_mgr(nullptr)
 {
@@ -34,7 +35,7 @@ int Cerberus::_gen_service_id()
 
 void Cerberus::_add_service(CerberusService *service)
 {
-	std::unique_lock<std::mutex> lock_big(service_mtx);
+	WriteLockGuard lock_big(service_rwlock);
 	service->id = _gen_service_id();
 	service_map.insert(std::make_pair(service->id, service));
 	service->active();
@@ -61,14 +62,14 @@ int Cerberus::dispatch_share_thread_service(CerberusService* service)
 
 void Cerberus::release_service(CerberusService* service)
 {
-	std::unique_lock<std::mutex> lock_big(service_mtx);
+	WriteLockGuard lock_big(service_rwlock);
 	service_map.erase(service->id);
 }
 
 bool Cerberus::push_event(CerberusEvent* event)
 {
-	std::unique_lock<std::mutex> lock_big(service_mtx);
-	printf("Cerberus push_event src_id=%d event_type=%d dest_id=%d\n", event->src_id, event->type, event->dest_id);
+	ReadLockGuard lock_big(service_rwlock);
+	Log::debug("Cerberus push_event src_id=%d event_type=%d dest_id=%d", event->src_id, event->type, event->dest_id);
 	auto iter = service_map.find(event->dest_id);
 	if (iter == service_map.end())
 	{
@@ -86,7 +87,7 @@ void Cerberus::start()
 	CerberusService *s = service_loader->load("service_test");
     if (!s)
     {
-        printf("test load error\n");
+        Log::error("test load error");
         return;
     }
 	dispatch_share_thread_service(s);

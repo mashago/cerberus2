@@ -3,6 +3,7 @@
 #include "cerberus.h"
 #include "cerberus_util.h"
 #include "cerberus_loader.h"
+#include "cerberus_log.h"
 
 static const char *DL_CREATE_FUNC = "cerberus_create_service";
 typedef void* (*dl_create_func)(Cerberus *);
@@ -46,7 +47,7 @@ CerberusService *CerberusLoader::load(const char *service_name)
         lib = dl_load_lib(path);
         if (!lib)
         {
-            printf("dl_load_lib fail %s\n", dl_error(error_msg, BUFFER_SIZE));
+            Log::error("dl_load_lib fail %s", dl_error(error_msg, BUFFER_SIZE));
             return nullptr;
         }
 
@@ -56,8 +57,9 @@ CerberusService *CerberusLoader::load(const char *service_name)
     dl_create_func create_func = (dl_create_func)dl_load_func(lib, DL_CREATE_FUNC);
     if (!create_func)
     {
-        printf("dl_load_func fail %s\n", dl_error(error_msg, BUFFER_SIZE));
+        Log::error("dl_load_func fail %s", dl_error(error_msg, BUFFER_SIZE));
         dl_unload_lib(lib);
+        dl_map.erase(path);
         return nullptr;
     }
 

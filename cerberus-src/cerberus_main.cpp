@@ -1,13 +1,10 @@
 
-extern "C"
-{
-#include <stdio.h>
-}
 #include "cerberus.h"
+#include "cerberus_log.h"
 
 int main(int argc, char** argv)
 {
-	printf("hello cerberus2\n");
+	Log::info("hello cerberus2");
 
 	Cerberus c;
 	c.start();
