@@ -1,13 +1,3 @@
-
-extern "C"
-{
-#include <stdio.h>
-#include <stdint.h>
-#ifndef WIN32
-#include <unistd.h>
-#endif
-}
-
 #include "cerberus_util.h"
 #include "cerberus_event.h"
 #include "cerberus.h"

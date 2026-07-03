@@ -14,7 +14,7 @@ CerberusThread::~CerberusThread()
 
 ///////////////////////////////////////////////////////
 
-CerberusShareThread::CerberusShareThread()
+CerberusShareThread::CerberusShareThread() : thread_count(0)
 {
 }
 

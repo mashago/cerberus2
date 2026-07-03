@@ -1,12 +1,4 @@
 
-extern "C"
-{
-#include <stdio.h>
-#include <stdint.h>
-#ifndef WIN32
-#include <unistd.h>
-#endif
-}
 #include <thread>
 
 #include "cerberus_event.h"

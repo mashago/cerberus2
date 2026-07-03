@@ -14,7 +14,6 @@ void clear_container(TC<TP> &c)
     {
         auto iter = c.begin();
         delete *iter;
-        *iter = nullptr;
         c.erase(iter);
     }
 }
